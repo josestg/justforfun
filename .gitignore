@@ -8,8 +8,13 @@
 # Test binary, built with `go test -c`
 *.test
 
+# Editor Config
+.idea
+.vscode
+.run
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
