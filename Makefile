@@ -3,6 +3,10 @@ help: ## prints make help.
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+
+test:
+	go test -race -v -count=1 ./...
+
 httpd: ## compiles httpd into standalone binary.
 	go build \
 		-ldflags "-X main.buildName=httpd-justforfun \
