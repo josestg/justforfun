@@ -1,8 +1,9 @@
 package health
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/josestg/justforfun/pkg/xerrs"
 
 	dHealth "github.com/josestg/justforfun/internal/domain/health"
 
@@ -27,7 +28,7 @@ func (h *Handler) showHealthStatus(w http.ResponseWriter, r *http.Request) error
 
 	report, err := h.u.HealthReport(ctx)
 	if err != nil {
-		return fmt.Errorf("%w: getting sys health repost", err)
+		return xerrs.Wrap(err, "getting health report")
 	}
 
 	return serialize.RestAPI(ctx, w, report, http.StatusOK)

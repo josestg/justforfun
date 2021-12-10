@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/josestg/justforfun/pkg/xerrs"
+
 	"github.com/josestg/justforfun/internal/domain/sys"
 
 	"github.com/josestg/justforfun/internal/delivery/restapi"
@@ -84,7 +86,7 @@ func run() error {
 		logger.Println("main:", "server was shutting down gracefully")
 	case err := <-listenErr:
 		if err != nil {
-			return fmt.Errorf("%w: listening failed", err)
+			return xerrs.Wrap(err, "listening failed")
 		}
 	}
 
