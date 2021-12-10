@@ -3,7 +3,9 @@ package restapi
 import (
 	"log"
 
-	"github.com/josestg/justforfun/internal/delivery/restapi/health"
+	uHealth "github.com/josestg/justforfun/internal/usecase/health"
+
+	hHealth "github.com/josestg/justforfun/internal/delivery/restapi/health"
 
 	"github.com/josestg/justforfun/pkg/mux"
 )
@@ -18,7 +20,8 @@ type Option struct {
 func NewRouter(opt *Option) *mux.Router {
 	router := mux.NewRouter(opt.ShutdownChannel)
 
-	healthHandler := health.NewHandler()
+	healthUseCase := uHealth.NewUseCase()
+	healthHandler := hHealth.NewHandler(healthUseCase)
 
 	router.Handle("/v1/healths", healthHandler)
 

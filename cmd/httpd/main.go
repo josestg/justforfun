@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/josestg/justforfun/internal/domain/sys"
+
 	"github.com/josestg/justforfun/internal/delivery/restapi"
 )
 
@@ -20,9 +22,9 @@ var (
 )
 
 func main() {
-	println("Build Name :  ", buildName)
-	println("Build Date :  ", buildDate)
-	println("Build Ref  :  ", buildRef)
+	sys.BuildRef.Set(buildRef)
+	sys.BuildName.Set(buildName)
+	sys.BuildDate.Set(buildDate)
 
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
