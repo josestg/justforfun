@@ -3,6 +3,8 @@ package restapi
 import (
 	"log"
 
+	"github.com/josestg/justforfun/internal/delivery/restapi/middleware"
+
 	uHealth "github.com/josestg/justforfun/internal/usecase/health"
 
 	hHealth "github.com/josestg/justforfun/internal/delivery/restapi/health"
@@ -18,7 +20,11 @@ type Option struct {
 
 // NewRouter creates a configured router for HTTP REST API delivery.
 func NewRouter(opt *Option) *mux.Router {
-	router := mux.NewRouter(opt.ShutdownChannel)
+	router := mux.NewRouter(
+		opt.ShutdownChannel,
+		middleware.Logger(opt.Logger),
+		middleware.Panics(opt.Logger),
+	)
 
 	healthUseCase := uHealth.NewUseCase()
 	healthHandler := hHealth.NewHandler(healthUseCase)
