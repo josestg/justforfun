@@ -1,8 +1,9 @@
 package health
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/josestg/justforfun/internal/serialize"
 )
 
 // Handler is a health handler.
@@ -15,31 +16,16 @@ func NewHandler() *Handler {
 	return &Handler{}
 }
 
-func (h *Handler) showHealthStatus(w http.ResponseWriter, _ *http.Request) error {
+func (h *Handler) showHealthStatus(w http.ResponseWriter, r *http.Request) error {
+	ctx := r.Context()
+
 	data := struct {
 		Ready bool `json:"ready"`
 	}{
 		Ready: true,
 	}
 
-	// Encode the data to JSON.
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	// Set the content type and headers once we know marshaling has succeeded.
-	w.Header().Set("Content-Type", "application/json")
-
-	// Write the status code to the response.
-	w.WriteHeader(http.StatusOK)
-
-	// Send the result back to the client.
-	if _, err := w.Write(jsonData); err != nil {
-		return err
-	}
-
-	return nil
+	return serialize.RestAPI(ctx, w, &data, http.StatusOK)
 }
 
 // ServeHTTP serves the Health Handler at /v1/healths.
