@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/josestg/justforfun/pkg/pqx"
+
 	"github.com/josestg/justforfun/pkg/xerrs"
 
 	"github.com/josestg/justforfun/internal/domain/sys"
@@ -40,6 +42,33 @@ func run() error {
 
 	logger.Println("main:", "started")
 	defer logger.Println("main:", "stopped")
+
+	// open database connection.
+	//
+	// note: we only open connection once,
+	// if we need database connection we must pass it as dependency.
+	db, err := pqx.Open(&pqx.Config{
+		Name:              "merchant_core",
+		Host:              "localhost:5432",
+		User:              "postgres",
+		Pass:              "kunci",
+		Timezone:          "Asia/Jakarta",
+		SSLEnabled:        false,
+		MaxOpenConnection: 0,
+		MaxIdleConnection: 0,
+	})
+
+	if err != nil {
+		return xerrs.Wrap(err, "open database connection")
+	}
+
+	logger.Println("main:", "checking database connection")
+	checkCtx, checkCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer checkCancel()
+
+	if err := pqx.CheckConnection(checkCtx, 5, db); err != nil {
+		return xerrs.Wrap(err, "checking database connection")
+	}
 
 	// create web server for our API.
 	//

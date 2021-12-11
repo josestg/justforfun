@@ -3,8 +3,11 @@ help: ## prints make help.
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+hooks: ## register git-hook scripts.
+	@chmod +x vars/scripts/pre-commit
+	@git config core.hooksPath vars/scripts
 
-test:
+test: ## executes test files. (race_detector: enabled, cache: disable)
 	go test -race -v -count=1 ./...
 
 httpd: ## compiles httpd into standalone binary.
