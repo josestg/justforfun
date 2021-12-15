@@ -36,7 +36,7 @@ func RestAPI(ctx context.Context, w http.ResponseWriter, data interface{}, statu
 	// Set the content type and headers once we know marshaling has succeeded.
 	w.Header().Set("Content-Type", "application/json")
 
-	// Write the status code to the response.
+	// WriteTo the status code to the response.
 	w.WriteHeader(status)
 
 	// Send the result back to the client.

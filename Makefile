@@ -28,3 +28,7 @@ httpd-image: ## builds a docker image of httpd application.
 		--build-arg SOURCE=github.com/josestg/justforfun/cmd/httpd/Dockerfile \
 		--build-arg AUTHOR="Jose Sitanggang <josealfredositanggang@gmail.com>" \
 		.
+
+sqlize: ## compiles sqlize into standalone binary.
+	go build \
+		-o sqlize.so cmd/sqlize/main.go
