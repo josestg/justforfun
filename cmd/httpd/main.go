@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/josestg/justforfun/internal/conf"
+
 	"github.com/josestg/justforfun/pkg/pqx"
 
 	"github.com/josestg/justforfun/pkg/xerrs"
@@ -30,14 +32,19 @@ func main() {
 	sys.BuildName.Set(buildName)
 	sys.BuildDate.Set(buildDate)
 
-	if err := run(); err != nil {
+	cfg := conf.New(
+		conf.WithRestAPIFromOSEnv(),
+		conf.WithDBPostgreFromOSEnv(),
+	)
+
+	if err := run(cfg); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 
 }
 
-func run() error {
+func run(c *conf.Config) error {
 	logger := log.New(os.Stdout, "HTTPD ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
 	logger.Println("main:", "started")
@@ -47,16 +54,7 @@ func run() error {
 	//
 	// note: we only open connection once,
 	// if we need database connection we must pass it as dependency.
-	db, err := pqx.Open(&pqx.Config{
-		Name:              "merchant_core",
-		Host:              "localhost:5432",
-		User:              "postgres",
-		Pass:              "kunci",
-		Timezone:          "Asia/Jakarta",
-		SSLEnabled:        false,
-		MaxOpenConnection: 0,
-		MaxIdleConnection: 0,
-	})
+	db, err := pqx.Open(c.DB.Postgre)
 
 	if err != nil {
 		return xerrs.Wrap(err, "open database connection")
@@ -84,9 +82,9 @@ func run() error {
 
 	server := &http.Server{
 		Handler:      router,
-		Addr:         ":3000",
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		Addr:         c.RestAPI.Addr,
+		ReadTimeout:  c.RestAPI.ReadTimeout,
+		WriteTimeout: c.RestAPI.WriteTimeout,
 	}
 
 	listenErr := make(chan error, 1)
@@ -101,7 +99,7 @@ func run() error {
 
 		// creating a deadline for the server to complete the incoming request
 		// before the shutdown signal is received.
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), c.RestAPI.ShutdownTimeout)
 		defer cancel()
 
 		// Gracefully shutdown

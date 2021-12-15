@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/josestg/justforfun/internal/conf"
+
 	"github.com/josestg/justforfun/pkg/pqx"
 
 	"github.com/josestg/justforfun/pkg/sqlize"
@@ -15,13 +17,19 @@ import (
 
 func main() {
 	args := os.Args[1:]
-	if err := run(args); err != nil {
+
+	cfg := conf.New(
+		conf.WithDBPostgreFromOSEnv(),
+		conf.WithMigrationFromEnv(),
+	)
+
+	if err := run(cfg, args); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }
 
-func run(args []string) error {
+func run(c *conf.Config, args []string) error {
 	if len(args) == 0 {
 		args = append(args, "help")
 	}
@@ -30,16 +38,7 @@ func run(args []string) error {
 	//
 	// note: we only open connection once,
 	// if we need database connection we must pass it as dependency.
-	db, err := pqx.Open(&pqx.Config{
-		Name:              "postgres",
-		Host:              "localhost:5432",
-		User:              "postgres",
-		Pass:              "kunci",
-		Timezone:          "Asia/Jakarta",
-		SSLEnabled:        false,
-		MaxOpenConnection: 0,
-		MaxIdleConnection: 0,
-	})
+	db, err := pqx.Open(c.DB.Postgre)
 
 	if err != nil {
 		return xerrs.Wrap(err, "open database connection")
@@ -52,8 +51,8 @@ func run(args []string) error {
 		return xerrs.Wrap(err, "checking database connection")
 	}
 
-	source := sqlize.NewSourceFromDir("vars/migrations")
-	repository := sqlize.NewPostgreRepository(db, "sqlize_migrations")
+	source := sqlize.NewSourceFromDir(c.Migration.SourceDir)
+	repository := sqlize.NewPostgreRepository(db, c.Migration.TableName)
 
 	migrator := sqlize.NewMigrator(source, repository)
 
