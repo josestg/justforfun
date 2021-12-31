@@ -3,7 +3,10 @@ package user
 import (
 	"context"
 
-	"github.com/josestg/justforfun/internal/usecase"
+	"github.com/josestg/justforfun/internal/usecase/provider"
+
+	"github.com/josestg/justforfun/internal/validation/rule"
+
 	"github.com/josestg/justforfun/pkg/validate"
 
 	"github.com/josestg/justforfun/pkg/xerrs"
@@ -12,10 +15,10 @@ import (
 )
 
 type Registration struct {
-	p *usecase.Provider
+	p *provider.Provider
 }
 
-func NewRegistration(provider *usecase.Provider) *Registration {
+func NewRegistration(provider *provider.Provider) *Registration {
 	return &Registration{
 		p: provider,
 	}
@@ -62,9 +65,9 @@ func (r *Registration) DeleteAccount(ctx context.Context, email, password string
 
 func (r *Registration) validateRegistrationInput(ctx context.Context, input *user.RegistrationInput) error {
 	schema := validate.Schema{
-		"name":     validate.Field(&input.Name),
-		"email":    validate.Field(&input.Email),
-		"password": validate.Field(&input.Password),
+		"name":     validate.Field(&input.Name, rule.Required(), rule.Len(5, 40)),
+		"email":    validate.Field(&input.Email, rule.Required(), rule.Len(5, 255), rule.Email()),
+		"password": validate.Field(&input.Password, rule.Required(), rule.Len(8, 255)),
 	}
 
 	return r.p.Validator.Validate(ctx, schema)

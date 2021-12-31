@@ -1,0 +1,6 @@
+{
+  "validation.required": "{{.Field}} harus diisi",
+  "validation.min_length": "Panjang dari {{.Field}} harus lebih dari atau sama dengan {{index .Args 'expect'}}, diperoleh {{index Args 'actual'}}",
+  "validation.max_length": "Panjang dari {{.Field}} harus kurang dari atau sama dengan {{index .Args 'expect'}}, diperoleh {{index Args 'actual'}}",
+  "invalid_email_format": "Format email tidak sesuai"
+}
