@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/josestg/justforfun/pkg/keymange"
+
 	"github.com/josestg/justforfun/internal/iam"
 	"github.com/josestg/justforfun/internal/repository"
 
@@ -48,6 +50,7 @@ func main() {
 	cfg := conf.New(
 		conf.WithRestAPIFromOSEnv(),
 		conf.WithDBPostgreFromOSEnv(),
+		conf.WithTokenizerFromOSEnv(),
 	)
 
 	if err := run(cfg); err != nil {
@@ -84,10 +87,16 @@ func run(c *conf.Config) error {
 	// setup UseCase.
 	//
 	// creates containerized use case.
+	keys, err := keymange.PemRSADir(os.DirFS(c.Tokenizer.KeysDir))
+	if err != nil {
+		return xerrs.Wrap(err, "loading RSA keys from dir")
+	}
+
+	km := keymange.NewRoundRobin(keys)
 	up := provider.Provider{
 		Identifier: x.NewIdentifier(),
 		Clock:      x.NewLocalClock(time.Local),
-		Tokenizer:  iam.NewJwtProvider(iam.NewJwtRS256(nil)),
+		Tokenizer:  iam.NewJwtProvider(iam.NewJwtRS256(km)),
 		Repository: repository.NewSQLContainer(db),
 		Validator:  validation.NewValidator(wording.NewWording(locale.Dictionary)),
 	}
