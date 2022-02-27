@@ -14,6 +14,7 @@ type Option func(c *Config)
 type Config struct {
 	DB        *DB        `json:"db,omitempty"`
 	RestAPI   *RestAPI   `json:"rest_api,omitempty"`
+	Tokenizer *Tokenizer `json:"tokenizer"`
 	Migration *Migration `json:"migration"`
 }
 
@@ -85,6 +86,24 @@ func WithDBPostgreFromOSEnv() Option {
 			SSLEnabled:        env.Bool("POSTGRE_DB_SSL_ENABLED", false),
 			MaxOpenConnection: env.Int("POSTGRE_DB_MAX_OPEN_CONN", 8),
 			MaxIdleConnection: env.Int("POSTGRE_DB_MAX_IDLE_CONN", 8),
+		}
+	}
+}
+
+// Tokenizer holds all Tokenizer config.
+type Tokenizer struct {
+	Issuer  string        `json:"issuer"`
+	KeysDir string        `json:"keys_dir"`
+	Expires time.Duration `json:"expires"`
+}
+
+// WithTokenizerFromOSEnv creates a Tokenizer config loader from OS Env.
+func WithTokenizerFromOSEnv() Option {
+	return func(c *Config) {
+		c.Tokenizer = &Tokenizer{
+			Issuer:  env.String("TOKENIZER_ISSUER", "justforfun"),
+			KeysDir: env.String("TOKENIZER_KEYS_DIR", "vars/keys"),
+			Expires: env.Duration("TOKENIZER_EXPIRES", time.Hour),
 		}
 	}
 }
