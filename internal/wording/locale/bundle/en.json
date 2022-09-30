@@ -1,6 +1,0 @@
-{
-  "validation.required": "{{.Field}} is required",
-  "validation.min_length": "Length of {{.Field}} must be greater than or equal to {{index .Args 'expect'}}, got {{index Args 'actual'}}",
-  "validation.max_length": "Length of {{.Field}} must be less than or equal to {{index .Args 'expect'}}, got {{index Args 'actual'}}",
-  "invalid_email_format": "invalid email format"
-}
