@@ -32,7 +32,3 @@ httpd-image: ## builds a docker image of httpd application.
 sqlize: ## compiles sqlize into standalone binary.
 	go build \
 		-o sqlize.so cmd/sqlize/main.go
-
-admin: ## complies admin cli tool into standalone binary.
-	go build \
-       -o admin.so cmd/admin/main.go

@@ -3,7 +3,6 @@ package env
 import (
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -14,12 +13,6 @@ func String(key, initial string) string {
 	if !exists {
 		return initial
 	}
-
-	v = strings.TrimSpace(v)
-	if len(v) == 0 {
-		return initial
-	}
-
 	return v
 }
 
